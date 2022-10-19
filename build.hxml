@@ -1,0 +1,26 @@
+--library minecraft-api
+
+#-p ../../Space (test 2)/src
+#-p ../../Functional/src
+
+--class-path src
+nl.imfi_jz.customblueprints3
+
+--dce full
+#-D functional-mutable not neccessary
+#-D log
+-D warn
+#-D mc_debug
+-D customblueprints_version=d0.44
+-D warn-var-shadowing
+-D analyzer-optimize
+-D analyzer-user-var-fusion
+-D fast-cast
+
+--cmd del CustomBlueprints.jar
+--cmd rename HxMcPlugin.jar CustomBlueprints.jar
+#--cmd copy CustomBlueprints.jar "E:\Games\Microsoft Games\Minecraft\Dedicated servers\Spigot\1.18.2\plugins\HxMcPluginLoader"
+
+--next
+-p ../../IniFile/src
+buildrunner.hxml
