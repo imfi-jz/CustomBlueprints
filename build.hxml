@@ -1,13 +1,9 @@
 --library minecraft-api
 
-#-p ../../Space (test 2)/src
-#-p ../../Functional/src
-
 --class-path src
 nl.imfi_jz.customblueprints3
 
 --dce full
-#-D functional-mutable not neccessary
 #-D log
 -D warn
 #-D mc_debug
