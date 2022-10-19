@@ -1,5 +1,8 @@
+.vscode
+out
+
 src/BuildRunner.hx
 buildrunner.hxml
-out
-.vscode
-**.txt
+
+*.txt
+!LICENSE.txt
