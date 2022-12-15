@@ -10,7 +10,7 @@ The following video showcases [the plugin's features in-game](https://youtu.be/O
 # Purpose
 This GitHub hosts the source code of the plugin for learning purposes. The project is by no means neatly structured, but it is fairly small and shows you how to do various things with the API. 
 
-It uses the **event system** (PlayerInteractEvent), creates and reads a **YML** config file, modifies **inventories** and **blocks** in the world, stores **persistant data** inside items and works with the **coordinate system** extensively. Furthermore the plugin uses the API's **debugger** and it uses the shared memory system to allow other plugins to cancel blueprints based on player or coordinates. Lastly the project shows what **compilation flags** can be used in a Haxe Minecraft plugin (see `build.hxml`).
+It uses the **event system** (PlayerInteractEvent), creates and reads a **YML** config file, modifies **inventories** and **blocks** in the world, stores **persistant data** inside items and works with the **coordinate system** extensively. Furthermore the plugin uses the API's **debugger** and it uses the shared memory system to allow other plugins to cancel blueprints based on player or coordinates (see [code examples](https://github.com/imfi-jz/CustomBlueprints/releases/tag/d0.5)). Lastly the project shows what **compilation flags** can be used in a Haxe Minecraft plugin (see `build.hxml`).
 
 Feel free to browse the source code, ask questions and copy it if you like.
 
