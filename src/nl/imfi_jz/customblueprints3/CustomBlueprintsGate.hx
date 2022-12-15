@@ -33,7 +33,10 @@ class CustomBlueprintsGate implements Gate {
         BlueprintItem.blueprintMaterialBlacklist = config.getBlueprintMaterialBlacklist();
         BlueprintItem.blueprintMaterialStateWhitelist = config.getBlueprintMaterialStateWhitelist();
         BlueprintItem.scheduler = plugin.getScheduler();
-        BlueprintItem.sharedMemory = plugin.getSharedPluginMemory().getObjectMemory();
+        BlueprintItem.objMemory = plugin.getSharedPluginMemory().getObjectMemory();
+        BlueprintItem.strMemory = plugin.getSharedPluginMemory().getStringMemory();
+        BlueprintItem.floatMemory = plugin.getSharedPluginMemory().getFloatMemory();
+        BlueprintItem.boolMemory = plugin.getSharedPluginMemory().getBoolMemory();
     }
 
 	public function disable(plugin:Plugin) {

@@ -1,5 +1,6 @@
 package nl.imfi_jz.customblueprints3;
 
+import nl.imfi_jz.minecraft_api.MessageReceiver;
 import nl.imfi_jz.minecraft_api.GameObject.Player;
 import nl.imfi_jz.minecraft_api.Gate.SharedMemory;
 import nl.imfi_jz.minecraft_api.Gate.Scheduler;
@@ -32,7 +33,10 @@ class BlueprintItem {
     public static var blueprintMaterialStateWhitelist:Array<String>;
     public static var scheduler:Scheduler;
 
-    public static var sharedMemory:SharedMemory<Dynamic>;
+    public static var objMemory:SharedMemory<Dynamic>;
+    public static var strMemory:SharedMemory<String>;
+    public static var floatMemory:SharedMemory<Float>;
+    public static var boolMemory:SharedMemory<Bool>;
 
     public static inline function unfinishedBlueprintRecipe(itemFactory:ConstructingItemFactory, recipeMaterials:Array<String>):ShapelessRecipe {
         final result = itemFactory.createGameObject(ItemType);
@@ -244,12 +248,38 @@ class BlueprintItem {
         final inventory = placer.getInventory();
         final world = placer.getWorld();
         var placedAny = false;
+        var cancelled = false;
+        
+        final wrapUp = () -> {
+            if(placedAny){
+                placer.playSoundByName('BLOCK_WOOD_PLACE', 1, 0.5);
+            }
+
+            boolMemory.valueChanged(getLastPlacedBlueprintSharedMemoryKey('Cancelled'));
+            boolMemory.setValue(getLastPlacedBlueprintSharedMemoryKey('Done'), true);
+        };
 
         Debugger.log('Building blueprint');
+
+        boolMemory.setValue(getLastPlacedBlueprintSharedMemoryKey('Cancelled'), false);
+        boolMemory.valueChanged(getLastPlacedBlueprintSharedMemoryKey('Cancelled'), (prev, curr) -> cancelled = curr);
+        boolMemory.setValue(getLastPlacedBlueprintSharedMemoryKey('Done'), false);
+        objMemory.setValue(getLastPlacedBlueprintSharedMemoryKey('Player'), placer);
+        floatMemory.setValue(getLastPlacedBlueprintSharedMemoryKey('X'), placingCoordinates.getX());
+        floatMemory.setValue(getLastPlacedBlueprintSharedMemoryKey('Y'), placingCoordinates.getY());
+        floatMemory.setValue(getLastPlacedBlueprintSharedMemoryKey('Z'), placingCoordinates.getZ());
 
         for (y in -blueprintMaxSize...blueprintMaxSize){
             for (x in -blueprintMaxSize...blueprintMaxSize){
                 for (z in -blueprintMaxSize...blueprintMaxSize){
+                    if(cancelled){
+                        if(placer is MessageReceiver){
+                            cast(placer, MessageReceiver).tell("§oYour blueprint placement was cancelled");
+                        }
+                        wrapUp();
+                        return;
+                    }
+
                     final relativeBlockCoordinates = new UnchangingThreeDimensional(x, y, z);
                     final worldBlockCoordinates = new UnchangingThreeDimensional(
                         placingCoordinates.getX() + relativeBlockCoordinates.getX(),
@@ -292,10 +322,12 @@ class BlueprintItem {
                 }
             }
         }
-        if(placedAny){
-            placer.playSoundByName('BLOCK_WOOD_PLACE', 1, 0.5);
-            sharedMemory.setValue("LastPlacedBlueprintPlayer", placer);
-        }
+
+        wrapUp();
+    }
+
+    private static inline function getLastPlacedBlueprintSharedMemoryKey(addition:String){
+        return 'LastPlacedBlueprint$addition';
     }
 
     private static function itemEquals(item:Item, name:String):Bool {
