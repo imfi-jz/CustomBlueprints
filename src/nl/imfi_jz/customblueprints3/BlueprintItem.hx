@@ -269,6 +269,8 @@ class BlueprintItem {
         floatMemory.setValue(getLastPlacedBlueprintSharedMemoryKey('Y'), placingCoordinates.getY());
         floatMemory.setValue(getLastPlacedBlueprintSharedMemoryKey('Z'), placingCoordinates.getZ());
 
+        final soundsPlayed = [];
+
         for (y in -blueprintMaxSize...blueprintMaxSize){
             for (x in -blueprintMaxSize...blueprintMaxSize){
                 for (z in -blueprintMaxSize...blueprintMaxSize){
@@ -294,27 +296,33 @@ class BlueprintItem {
     
                         if(itemNameAtCoordinates != null){
                             for(inventorySlot in inventory.occupiedSlots()){
-                                final invItem = inventory.getItem(inventorySlot);
                                 final placeForFree = !shouldConsumeRequiredItemsFromPlacer(placer);
+                                final invItem = inventory.getItem(inventorySlot);
                                 Debugger.log('Placing $itemNameAtCoordinates for free');
                                 
                                 if(placeForFree || itemEquals(invItem, itemNameAtCoordinates)){
                                     Debugger.log('Found item at slot: $inventorySlot');
                                     if(placeForFree || inventory.setQuantity(inventorySlot, inventory.getQuantity(inventorySlot) - 1)){
-                                        if(block.setType(itemNameAtCoordinates)){
-                                            for(stateValuePair in getBlueprintBlockStateValuesAt(item, serializedCoordinates).keyValueIterator()){
-                                                Debugger.log('Setting property ${stateValuePair.key} to ${stateValuePair.value}');
-                                                if(!block.setValue(stateValuePair.key, stateValuePair.value)){
-                                                    Debugger.log('Failed to set property');
+                                        scheduler.executeInParallel(() ->
+                                            if(block.setType(itemNameAtCoordinates)){
+                                                for(stateValuePair in getBlueprintBlockStateValuesAt(item, serializedCoordinates).keyValueIterator()){
+                                                    Debugger.log('Setting property ${stateValuePair.key} to ${stateValuePair.value}');
+                                                    if(!block.setValue(stateValuePair.key, stateValuePair.value)){
+                                                        Debugger.warn('Failed to set property');
+                                                    }
                                                 }
+                                                placedAny = true;
+                                                if(!soundsPlayed.contains(itemNameAtCoordinates)){
+                                                    block.playSoundByName('BLOCK_${itemNameAtCoordinates}_PLACE', 0.5, 0.5);
+                                                    soundsPlayed.push(itemNameAtCoordinates);
+                                                }
+                                                // break;
                                             }
-                                            placedAny = true;
-                                            block.playSoundByName('BLOCK_${itemNameAtCoordinates}_PLACE', 0.5, 0.5);
-                                            break;
-                                        }
-                                        else Debugger.log('Failed to set item type $itemNameAtCoordinates');
+                                            else Debugger.warn('Failed to set item type $itemNameAtCoordinates')
+                                        );
+                                        break;
                                     }
-                                    else Debugger.log('Failed to reduce item quantity of $itemNameAtCoordinates');
+                                    else Debugger.warn('Failed to reduce item quantity of $itemNameAtCoordinates');
                                 }
                             }
                         }
