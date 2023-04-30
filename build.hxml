@@ -7,7 +7,7 @@ nl.imfi_jz.customblueprints3
 #-D log
 -D warn
 #-D mc_debug
--D customblueprints_version=d0.5
+-D customblueprints_version=d0.51
 -D warn-var-shadowing
 -D analyzer-optimize
 -D analyzer-user-var-fusion
